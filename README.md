@@ -5,12 +5,15 @@ This repository configures Continuous deployment for an example Cloud Run soluti
 ## Components
 
 * Terraform
+
     This deploys the GitOps repository to your project and configures build triggers that update the repository as soon as a container image is updated.
 
 * gitops-scaffold
+
     Example content to initialize the GitOps repository for application deployment.
 
 * example-application
+
     Example Dockerfile to trigger application deployment
 
 ## Deployment
