@@ -1,5 +1,5 @@
 # Configure Terraform service account
-data "google_service_account" "terraform_sa" {
+resource "google_service_account" "terraform" {
   project    = var.project_id
   account_id = "terraform-sa"
 }
@@ -7,7 +7,25 @@ data "google_service_account" "terraform_sa" {
 resource "google_project_iam_member" "project_owner_terraform" {
   project = var.project_id
   role    = "roles/owner"
-  member  = "serviceAccount:${google_service_account.terraform_sa.email}"
+  member  = "serviceAccount:${google_service_account.terraform.email}"
+}
+
+# Configure Terraform State bucket
+resource "google_storage_bucket" "terraform_state" {
+  project = var.project_id
+  name    = "${var.project_id}-terraform"
+
+  location                    = "europe-west4"
+  uniform_bucket_level_access = true
+  versioning {
+    enabled = true
+  }
+}
+
+resource "google_storage_bucket_iam_member" "terraform_state_admin_terraform" {
+  bucket = google_storage_bucket.terraform_state.name
+  role   = "roles/storage.admin"
+  member = "serviceAccount:${google_service_account.terraform.email}"
 }
 
 
@@ -35,7 +53,7 @@ resource "google_project_iam_member" "project_logs_writer_gitops_deployment" {
 
 # Allow GitOps deployment account to impersonate Terraform
 resource "google_service_account_iam_member" "terraform_impersonate_gitops_deployment" {
-  service_account_id = google_service_account.terraform_sa.name
+  service_account_id = google_service_account.terraform.name
   role               = "roles/iam.serviceAccountTokenCreator"
   member             = "serviceAccount:${google_service_account.gitops_deployment.email}"
 }

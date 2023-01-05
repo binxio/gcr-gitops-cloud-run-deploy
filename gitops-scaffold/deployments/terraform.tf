@@ -1,4 +1,10 @@
 terraform {
+  backend "gcs" {
+    impersonate_service_account = "terraform-sa@my-project.iam.gserviceaccount.com"
+    bucket                      = "my-project-terraform"
+    prefix                      = "production"
+  }
+
   required_version = "~> 1.2.0"
 
   required_providers {
